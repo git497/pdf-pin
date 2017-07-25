@@ -4,7 +4,7 @@ const CleanPlugin = require('clean-webpack-plugin')
 
 module.exports = {
   entry: {
-    'app': './src/simple.js',
+    'app': './src/index.js',
   },
   output: {
     filename: '[name].js',
