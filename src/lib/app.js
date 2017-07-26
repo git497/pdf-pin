@@ -23,8 +23,12 @@ function App(container, options = {}) {
         return pdf.getPage(pageNumber)
       })
       .then(page => {
-        const scale = 1;
-        let viewport = page.getViewport(scale)
+
+        const desiredWidth = container.clientWidth
+        let viewport = page.getViewport(1)
+        const scale = desiredWidth / viewport.width
+        viewport = page.getViewport(scale)
+
         self.canvas.height = viewport.height
         self.canvas.width = viewport.width
         const context = self.canvas.getContext('2d')
