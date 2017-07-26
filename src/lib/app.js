@@ -54,10 +54,37 @@ function App(container, options = {}) {
 
   function initFcanvas() {
     const bg = self.canvas.toDataURL("image/png")
-    let fcanvas = new fabric.Canvas(self.canvas.id, {selection: false})
+    const fcanvas = new fabric.Canvas(self.canvas.id, {selection: false})
+
     fcanvas.setBackgroundImage(bg, () => fcanvas.renderAll())
-    fcanvas.on('mouse:dblclick', data => addPin(data.e.offsetX, data.e.offsetY))
+
+    fcanvas.on('mouse:dblclick', event => {
+      const point = fcanvas.getPointer(event.e)
+      addPin(point.x, point.y)
+    })
+
+    pan()
+
     self.fcanvas = fcanvas
+
+    function pan() {
+      let panning = false
+      fcanvas.on('mouse:up', function (e) {
+        panning = false
+      })
+
+      fcanvas.on('mouse:down', function (e) {
+        panning = true
+      })
+
+      fcanvas.on('mouse:move', function (e) {
+        if (panning && e && e.e) {
+          const units = 10
+          const delta = new fabric.Point(e.e.movementX, e.e.movementY)
+          fcanvas.relativePan(delta)
+        }
+      })
+    }
   }
 }
 
