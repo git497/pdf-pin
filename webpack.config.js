@@ -3,9 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanPlugin = require('clean-webpack-plugin')
 
 module.exports = {
-  entry: {
-    'app': './src/index.js',
-  },
+  entry: './src/index.js',
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),

@@ -1,12 +1,7 @@
-import './simple.html'
-import App from './lib/app'
-import PdfViewer from './lib/pdfViewer'
-import Test from './lib/test'
+import './index.html'
+import Viewer from './lib/viewer'
 
 window.onload = () => {
-
-  const container = document.getElementById('root')
-  const url = 'data/HYG.pdf'
-  let app = new PdfViewer(container)
-  app.load(url)
+  const container = document.getElementById('container')
+  new Viewer(container).load('data/HYG.pdf')
 }

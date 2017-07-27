@@ -1,12 +1,13 @@
 import {getDocument} from 'pdfjs-dist/webpack'
 import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
 import shortid from 'shortid'
+import {fabric} from 'fabric'
 
+const {PDFViewer} = PDFJS
 const CSS_UNITS = 96.0 / 72.0
 
 function Viewer(container, options = {}) {
   const self = this
-  const {PDFViewer} = PDFJS
 
   self.load = load
 
@@ -32,7 +33,7 @@ function Viewer(container, options = {}) {
           .then(data => {
             page = data
             viewport = page.getViewport(1)
-            scale = (container.clientWidth / viewport.width) / CSS_UNITS
+            scale = (container.clientWidth / viewport.width) / CSS_UNITS  //
             viewport = page.getViewport(scale)
             return pdfViewer.setDocument(pdf)
               .then(() => {
