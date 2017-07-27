@@ -13,14 +13,27 @@ function Viewer(container, options = {}) {
 
   let pdfViewer = new PDFViewer({
     container,
-    viewer:document.getElementById('viewer'),
+    viewer: document.getElementById('viewer'),
   })
 
   function load(url) {
     getDocument(url)
       .then(document => {
-        pdfViewer.setDocument(document)
+        return document.getPage(1)
+          .then(page => {
+            const desiredWidth = container.clientWidth
+            let viewport = page.getViewport(1)
+            return pdfViewer.setDocument(document)
+              .then(() => {
+                const scale = (desiredWidth / viewport.width) / (96.0 / 72.0)
+                pdfViewer.currentScale = scale
+              })
+          })
       })
+  }
+
+  function zoomIn(value) {
+    pdfViewer.currentScale = value
   }
 }
 
