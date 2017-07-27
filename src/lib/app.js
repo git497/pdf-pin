@@ -49,7 +49,7 @@ function App(container, options = {}) {
       oImg.left = x - oImg.width / 2
       oImg.top = y - oImg.height / 2
       self.fcanvas.add(oImg)
-    });
+    })
   }
 
   function initFcanvas() {
@@ -64,6 +64,39 @@ function App(container, options = {}) {
     })
 
     pan()
+
+    var zoomLevel = 0;
+    var zoomLevelMin = 0;
+    var zoomLevelMax = 3;
+
+    fcanvas.on('mouse:wheel', event => {
+      const delta = event.e.wheelDelta;
+      if (delta !== 0) {
+        const pointer = fcanvas.getPointer(event.e, true);
+        const point = new fabric.Point(pointer.x, pointer.y);
+        if (delta > 0) {
+          zoomIn(point);
+        } else if (delta < 0) {
+          zoomOut(point);
+        }
+      }
+
+      function zoomIn(point) {
+        if (zoomLevel < zoomLevelMax) {
+          zoomLevel++;
+          fcanvas.zoomToPoint(point, Math.pow(2, zoomLevel));
+          // keepPositionInBounds(canvas);
+        }
+      }
+
+      function zoomOut(point) {
+        if (zoomLevel > zoomLevelMin) {
+          zoomLevel--;
+          fcanvas.zoomToPoint(point, Math.pow(2, zoomLevel));
+          // keepPositionInBounds(canvas);
+        }
+      }
+    })
 
     self.fcanvas = fcanvas
 
