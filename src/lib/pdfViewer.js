@@ -1,21 +1,21 @@
 import pdfJS from 'pdfjs-dist/webpack'
 import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
-import $ from '../../node_modules/jquery/dist/jquery'
-
 
 function Viewer(container, options = {}) {
   const self = this
-  console.log(PDFJS)
-  console.log(pdfJS)
 
   self.load = load
 
   const {getDocument} = pdfJS
   const {PDFViewer} = PDFJS
 
+  let viewer = document.createElement("div")
+  viewer.id = "viewer"
+  viewer.style = "position: absolute"
+  container.appendChild(viewer);
   let pdfViewer = new PDFViewer({
     container,
-    viewer: document.getElementById('viewer'),
+    viewer: viewer,
   })
 
   function load(url) {
@@ -30,11 +30,13 @@ function Viewer(container, options = {}) {
                 let scale = (desiredWidth / viewport.width) / (96.0 / 72.0)
                 pdfViewer.currentScale = scale
 
+                viewport = page.getViewport(scale)
+                console.log(viewport)
                 let x = document.createElement("canvas");
                 x.id = "pin-canvas";
-                x.height = viewport.height;
-                x.width = viewport.width;
-                document.body.appendChild(x);
+                x.height = viewport.height * (96.0 / 72.0);
+                x.width = viewport.width * (96.0 / 72.0);
+                container.appendChild(x);
 
                 let pinCanvas = this.__canvas = new fabric.Canvas('pin-canvas');
                 fabric.Object.prototype.transparentCorners = false;
@@ -42,30 +44,30 @@ function Viewer(container, options = {}) {
                 pinCanvas.on('mouse:down', function (e) {
                   new fabric.Image.fromURL('../data/location.png',
                     imgInstance => {
-                      pinCanvas.add(imgInstance);
-                    }, {
-                      top: e.e.offsetY,
-                      topRange: (e.e.offsetY / viewport.height),
-                      left: e.e.offsetX,
-                      leftRange: (e.e.offsetX / viewport.width),
-                      lockUniScaling: true,
-                      lockRotation: true,
-                      opacity: 0.85
+                      imgInstance.top = e.e.offsetY - imgInstance.height
+                      imgInstance.left = e.e.offsetX - imgInstance.width / 2
+                      imgInstance.lockUniScaling = true
+                      imgInstance.lockRotation = true
+                      imgInstance.topRange = e.e.offsetY / viewport.height
+                      imgInstance.leftRange = e.e.offsetX / viewport.width
+                      imgInstance.opacity = 0.85
+                      pinCanvas.add(imgInstance)
                     })
+
                   pinCanvas.renderAll();
 
                 });
 
-                $(pinCanvas.wrapperEl).on('mousewheel', function (e) {
-                  var delta = e.originalEvent.wheelDelta / 1200;
+                pinCanvas.on('mouse:wheel', function (e) {
+                  var delta = e.e.wheelDelta / 3600;
                   scale += delta
                   zoomIn(scale)
                   viewport = page.getViewport(scale);
 
                   pinCanvas.getObjects().forEach(obj => {
                     console.log(obj)
-                    obj.set('top', (viewport.height ) * obj.topRange)
-                    obj.set('left', (viewport.width ) * obj.leftRange)
+                    obj.set('top', viewport.height * obj.topRange - obj.height)
+                    obj.set('left', viewport.width * obj.leftRange - obj.width / 2)
                   })
                   pinCanvas.renderAll();
                 });
