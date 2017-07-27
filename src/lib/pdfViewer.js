@@ -1,83 +1,101 @@
-import pdfJS from 'pdfjs-dist/webpack'
+import {getDocument} from 'pdfjs-dist/webpack'
 import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
+import shortid from 'shortid'
+
+const CSS_UNITS = 96.0 / 72.0
 
 function Viewer(container, options = {}) {
   const self = this
+  const {PDFViewer} = PDFJS
 
   self.load = load
 
-  const {getDocument} = pdfJS
-  const {PDFViewer} = PDFJS
-
   let viewer = document.createElement("div")
-  viewer.id = "viewer"
+  viewer.id = shortid.generate()
   viewer.style = "position: absolute"
-  container.appendChild(viewer);
+  container.appendChild(viewer)
+
+  let viewport = null
+  let pinCanvas = null
+  let scale = 1
+  let page = null
+
   let pdfViewer = new PDFViewer({
     container,
     viewer: viewer,
   })
 
   function load(url) {
-    getDocument(url)
+    return getDocument(url)
       .then(pdf => {
         return pdf.getPage(1)
-          .then(page => {
-            const desiredWidth = container.clientWidth
-            let viewport = page.getViewport(1)
+          .then(data => {
+            page = data
+            viewport = page.getViewport(1)
+            scale = (container.clientWidth / viewport.width) / CSS_UNITS
+            viewport = page.getViewport(scale)
             return pdfViewer.setDocument(pdf)
               .then(() => {
-                let scale = (desiredWidth / viewport.width) / (96.0 / 72.0)
                 pdfViewer.currentScale = scale
-
-                viewport = page.getViewport(scale)
-                console.log(viewport)
-                let x = document.createElement("canvas");
-                x.id = "pin-canvas";
-                x.height = viewport.height * (96.0 / 72.0);
-                x.width = viewport.width * (96.0 / 72.0);
-                container.appendChild(x);
-
-                let pinCanvas = this.__canvas = new fabric.Canvas('pin-canvas');
-                fabric.Object.prototype.transparentCorners = false;
-
-                pinCanvas.on('mouse:down', function (e) {
-                  new fabric.Image.fromURL('../data/location.png',
-                    imgInstance => {
-                      imgInstance.top = e.e.offsetY - imgInstance.height
-                      imgInstance.left = e.e.offsetX - imgInstance.width / 2
-                      imgInstance.lockUniScaling = true
-                      imgInstance.lockRotation = true
-                      imgInstance.topRange = e.e.offsetY / viewport.height
-                      imgInstance.leftRange = e.e.offsetX / viewport.width
-                      imgInstance.opacity = 0.85
-                      pinCanvas.add(imgInstance)
-                    })
-
-                  pinCanvas.renderAll();
-
-                });
-
-                pinCanvas.on('mouse:wheel', function (e) {
-                  var delta = e.e.wheelDelta / 3600;
-                  scale += delta
-                  zoomIn(scale)
-                  viewport = page.getViewport(scale);
-
-                  pinCanvas.getObjects().forEach(obj => {
-                    console.log(obj)
-                    obj.set('top', viewport.height * obj.topRange - obj.height)
-                    obj.set('left', viewport.width * obj.leftRange - obj.width / 2)
-                  })
-                  pinCanvas.renderAll();
-                });
+                initPinCanvas(viewport.width * CSS_UNITS, viewport.height * CSS_UNITS)
               })
           })
       })
   }
 
-  function zoomIn(value) {
-    pdfViewer.currentScale = value
+  function initPinCanvas(width, height) {
+
+    let x = document.createElement("canvas");
+    x.id = shortid.generate()
+    x.width = width;
+    x.height = height;
+    x.style = "border: medium dashed green"
+    container.appendChild(x);
+
+    pinCanvas = new fabric.Canvas(x.id);
+    fabric.Object.prototype.transparentCorners = false;
+
+    pinCanvas.on('mouse:dblclick', e => {
+      addPin({x: e.e.offsetX, y: e.e.offsetY})
+    });
+
+    pinCanvas.on('mouse:wheel', function (e) {
+      const delta = e.e.wheelDelta / 3600
+      zoomIn(delta)
+      viewport = page.getViewport(scale);
+
+      pinCanvas.getObjects().forEach(obj => {
+        // console.log(obj)
+        obj.set('top', viewport.height * obj.topRange - obj.height)
+        obj.set('left', viewport.width * obj.leftRange - obj.width / 2)
+      })
+      pinCanvas.renderAll()
+    })
+  }
+
+  function addPin(point) {
+    new fabric.Image.fromURL('../data/location.png', imgInstance => {
+      imgInstance.top = point.y - imgInstance.height
+      imgInstance.left = point.x - imgInstance.width / 2
+      imgInstance.lockUniScaling = true
+      imgInstance.lockRotation = true
+      imgInstance.topRange = point.y / viewport.height
+      imgInstance.leftRange = point.x / viewport.width
+      imgInstance.opacity = 0.85
+      pinCanvas.add(imgInstance)
+    })
+  }
+
+  function zoomIn(delta) {
+    let newScale = scale + delta
+    const factor = scale / newScale
+    scale = newScale
+    pdfViewer.currentScale = scale
+
+    // pinCanvas.setHeight(pinCanvas.getHeight() * factor);
+    // pinCanvas.setWidth(pinCanvas.getWidth() * factor);
+    // pinCanvas.renderAll();
+    // pinCanvas.calcOffset();
   }
 }
 
