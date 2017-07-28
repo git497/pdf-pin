@@ -71,19 +71,6 @@ function Viewer(container, options = {}) {
     pinCanvas.on('mouse:wheel', e => {
       const delta = normalizeWheel(e.e).pixelY / 3600
       zoomIn(delta)
-
-      viewport = page.getViewport(pdfViewer.currentScale)
-      pinCanvas.getObjects().forEach(obj => {
-        obj.set('top', viewport.height * obj.topRate - obj.height)
-        obj.set('left', viewport.width * obj.leftRate - obj.width / 2)
-        obj.setCoords()
-
-        // const [x, y] = obj.pdfPoint
-        // const [top, left] = viewport.convertToViewportPoint(x, y)
-        // obj.set('top', top - obj.height)
-        // obj.set('left', left - obj.width / 2)
-      })
-      pinCanvas.renderAll()
     })
   }
 
@@ -96,27 +83,25 @@ function Viewer(container, options = {}) {
       imgInstance.topRate = point.y / viewport.height
       imgInstance.leftRate = point.x / viewport.width
       imgInstance.opacity = 0.85
-      // imgInstance.setCoords()
       imgInstance.cornerColor = 'green'
-
-      // const pdfPoint = viewport.convertToPdfPoint(point.x, point.y)
-      // imgInstance.pdfPoint = pdfPoint
+      imgInstance.pdfPoint = getPdfPoint(point)
       pinCanvas.add(imgInstance)
 
       imgInstance.on('selected', e => {
-        console.log('event: selected')
       })
 
       imgInstance.on('moving', e => {
         imgInstance.topRate = (imgInstance.top + imgInstance.height) / viewport.height
         imgInstance.leftRate = (imgInstance.left + imgInstance.width / 2) / viewport.width
+        const point = pinCanvas.getPointer(e.e)
+        imgInstance.pdfPoint = getPdfPoint(point)
         imgInstance.setCoords()
-        console.log('event: moving')
       })
-
     })
+  }
 
-
+  function getPdfPoint(canvasPt) {
+    return viewport.convertToPdfPoint(canvasPt.x, canvasPt.y)
   }
 
   // function zoomOut(delta) {
@@ -126,14 +111,23 @@ function Viewer(container, options = {}) {
     const currentScale = pdfViewer.currentScale
     const newScale = currentScale + delta
     const factor = newScale / currentScale
-    pdfViewer.currentScale = newScale
 
+    // 更新pdfview: scale、viewport
+    pdfViewer.currentScale = newScale
+    viewport = page.getViewport(newScale)
+
+    // 更新pinCanvas
     const height = pinCanvas.getHeight()
     const width = pinCanvas.getWidth()
-    pinCanvas.setHeight(height * factor);
-    pinCanvas.setWidth(width * factor);
-    pinCanvas.renderAll();
-    pinCanvas.calcOffset();
+    pinCanvas.setHeight(height * factor)
+    pinCanvas.setWidth(width * factor)
+    pinCanvas.getObjects().forEach(obj => {
+      obj.set('top', viewport.height * obj.topRate - obj.height)
+      obj.set('left', viewport.width * obj.leftRate - obj.width / 2)
+      obj.setCoords()
+    })
+    pinCanvas.renderAll()
+    pinCanvas.calcOffset()
   }
 }
 
