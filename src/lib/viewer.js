@@ -74,7 +74,7 @@ function Viewer(container, options = {}) {
 
       viewport = page.getViewport(pdfViewer.currentScale)
       pinCanvas.getObjects().forEach(obj => {
-        obj.set('top', viewport.height * obj.topRange - obj.height / 2)
+        obj.set('top', viewport.height * obj.topRange - obj.height)
         obj.set('left', viewport.width * obj.leftRange - obj.width / 2)
         obj.setCoords()
 
@@ -89,7 +89,7 @@ function Viewer(container, options = {}) {
 
   function addPin(point) {
     new fabric.Image.fromURL('../data/location.png', imgInstance => {
-      imgInstance.top = point.y - imgInstance.height / 2
+      imgInstance.top = point.y - imgInstance.height
       imgInstance.left = point.x - imgInstance.width / 2
       imgInstance.lockUniScaling = true
       imgInstance.lockRotation = true
@@ -108,12 +108,11 @@ function Viewer(container, options = {}) {
       })
 
       imgInstance.on('moving', e => {
-
         const point = pinCanvas.getPointer(e.e)
-        imgInstance.set('top', point.y - imgInstance.height / 2)
-        imgInstance.set('left', point.x - imgInstance.width / 2)
-        imgInstance.topRange = point.y / viewport.height
-        imgInstance.leftRange = point.x / viewport.width
+        // imgInstance.set('top', point.y - imgInstance.height)
+        // imgInstance.set('left', point.x - imgInstance.width / 2)
+        imgInstance.topRange = (imgInstance.top + imgInstance.height) / viewport.height
+        imgInstance.leftRange = (imgInstance.left + imgInstance.width / 2) / viewport.width
         imgInstance.setCoords()
         console.log('event: moving')
       })
