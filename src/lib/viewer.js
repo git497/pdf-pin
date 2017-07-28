@@ -1,8 +1,10 @@
 import {getDocument} from 'pdfjs-dist/webpack'
 import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
+import 'pdfjs-dist/web/compatibility'
 import shortid from 'shortid'
 import {fabric} from 'fabric'
 
+PDFJS.disableTextLayer = true
 const {PDFViewer} = PDFJS
 const CSS_UNITS = 96.0 / 72.0
 
@@ -11,19 +13,19 @@ function Viewer(container, options = {}) {
 
   self.load = load
 
-  let viewer = document.createElement("div")
-  viewer.id = shortid.generate()
-  viewer.style = "position: absolute"
-  container.appendChild(viewer)
+  const viewerElem = document.createElement("div")
+  viewerElem.id = shortid.generate()
+  viewerElem.style.position = 'absolute'
+  container.appendChild(viewerElem)
 
   let viewport = null
   let pinCanvas = null
   let scale = 1
   let page = null
 
-  let pdfViewer = new PDFViewer({
+  const pdfViewer = new PDFViewer({
     container,
-    viewer: viewer,
+    viewer: viewerElem,
   })
 
   function load(url) {
@@ -46,19 +48,19 @@ function Viewer(container, options = {}) {
 
   function initPinCanvas(width, height) {
 
-    let x = document.createElement("canvas");
-    x.id = shortid.generate()
-    x.width = width;
-    x.height = height;
-    x.style = "border: medium dashed green"
-    container.appendChild(x);
+    const canvasElem = document.createElement("canvas")
+    canvasElem.id = shortid.generate()
+    canvasElem.width = width
+    canvasElem.height = height
+    canvasElem.style.border = "medium dashed green"
+    container.appendChild(canvasElem)
 
-    pinCanvas = new fabric.Canvas(x.id);
-    fabric.Object.prototype.transparentCorners = false;
+    pinCanvas = new fabric.Canvas(canvasElem.id)
+    fabric.Object.prototype.transparentCorners = false
 
     pinCanvas.on('mouse:dblclick', e => {
       addPin({x: e.e.offsetX, y: e.e.offsetY})
-    });
+    })
 
     pinCanvas.on('mouse:wheel', function (e) {
       const delta = e.e.wheelDelta / 3600
@@ -88,7 +90,7 @@ function Viewer(container, options = {}) {
   }
 
   function zoomIn(delta) {
-    let newScale = scale + delta
+    const newScale = scale + delta
     const factor = scale / newScale
     scale = newScale
     pdfViewer.currentScale = scale
