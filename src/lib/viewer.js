@@ -16,12 +16,15 @@ function Viewer(container, options = {}) {
 
   const viewerElem = document.createElement("div")
   viewerElem.id = shortid.generate()
+  // viewerElem.style.border = "medium dotted yellow"
   viewerElem.style.position = 'absolute'
+  // viewerElem.style.width = container.style.width
+  // viewerElem.style.height = container.clientHeight || 500
+  // viewerElem.style.overflow = 'auto'
   container.appendChild(viewerElem)
 
   let viewport = null
   let pinCanvas = null
-  let scale = 1
   let page = null
 
   const pdfViewer = new PDFViewer({
@@ -36,7 +39,7 @@ function Viewer(container, options = {}) {
           .then(data => {
             page = data
             viewport = page.getViewport(1)
-            scale = (container.clientWidth / viewport.width) / CSS_UNITS  //
+            const scale = (container.clientWidth / viewport.width) / CSS_UNITS  //
             viewport = page.getViewport(scale)
             return pdfViewer.setDocument(pdf)
               .then(() => {
@@ -53,25 +56,32 @@ function Viewer(container, options = {}) {
     canvasElem.id = shortid.generate()
     canvasElem.width = width
     canvasElem.height = height
-    canvasElem.style.border = "medium dashed green"
+    // canvasElem.style.border = "medium dashed green"
     container.appendChild(canvasElem)
 
     pinCanvas = new fabric.Canvas(canvasElem.id)
     fabric.Object.prototype.transparentCorners = false
 
     pinCanvas.on('mouse:dblclick', e => {
-      addPin({x: e.e.offsetX, y: e.e.offsetY})
+      const point = pinCanvas.getPointer(e.e)
+      // const point = {x: e.e.offsetX, y: e.e.offsetY}
+      addPin(point)
     })
 
-    pinCanvas.on('mouse:wheel', function (e) {
+    pinCanvas.on('mouse:wheel', e => {
       const delta = normalizeWheel(e.e).pixelY / 3600
       zoomIn(delta)
-      viewport = page.getViewport(scale);
 
+      viewport = page.getViewport(pdfViewer.currentScale)
       pinCanvas.getObjects().forEach(obj => {
-        // console.log(obj)
-        obj.set('top', viewport.height * obj.topRange - obj.height)
+        obj.set('top', viewport.height * obj.topRange - obj.height / 2)
         obj.set('left', viewport.width * obj.leftRange - obj.width / 2)
+        obj.setCoords()
+
+        // const [x, y] = obj.pdfPoint
+        // const [top, left] = viewport.convertToViewportPoint(x, y)
+        // obj.set('top', top - obj.height)
+        // obj.set('left', left - obj.width / 2)
       })
       pinCanvas.renderAll()
     })
@@ -79,27 +89,55 @@ function Viewer(container, options = {}) {
 
   function addPin(point) {
     new fabric.Image.fromURL('../data/location.png', imgInstance => {
-      imgInstance.top = point.y - imgInstance.height
+      imgInstance.top = point.y - imgInstance.height / 2
       imgInstance.left = point.x - imgInstance.width / 2
       imgInstance.lockUniScaling = true
       imgInstance.lockRotation = true
       imgInstance.topRange = point.y / viewport.height
       imgInstance.leftRange = point.x / viewport.width
       imgInstance.opacity = 0.85
+      // imgInstance.setCoords()
+      imgInstance.cornerColor = 'green'
+
+      // const pdfPoint = viewport.convertToPdfPoint(point.x, point.y)
+      // imgInstance.pdfPoint = pdfPoint
       pinCanvas.add(imgInstance)
+
+      imgInstance.on('selected', e => {
+        console.log('event: selected')
+      })
+
+      imgInstance.on('moving', e => {
+
+        const point = pinCanvas.getPointer(e.e)
+        imgInstance.set('top', point.y - imgInstance.height / 2)
+        imgInstance.set('left', point.x - imgInstance.width / 2)
+        imgInstance.topRange = point.y / viewport.height
+        imgInstance.leftRange = point.x / viewport.width
+        imgInstance.setCoords()
+        console.log('event: moving')
+      })
+
     })
+
+
   }
 
-  function zoomIn(delta) {
-    const newScale = scale + delta
-    const factor = scale / newScale
-    scale = newScale
-    pdfViewer.currentScale = scale
+  // function zoomOut(delta) {
+  // }
 
-    // pinCanvas.setHeight(pinCanvas.getHeight() * factor);
-    // pinCanvas.setWidth(pinCanvas.getWidth() * factor);
-    // pinCanvas.renderAll();
-    // pinCanvas.calcOffset();
+  function zoomIn(delta) {
+    const currentScale = pdfViewer.currentScale
+    const newScale = currentScale + delta
+    const factor = newScale / currentScale
+    pdfViewer.currentScale = newScale
+
+    const height = pinCanvas.getHeight()
+    const width = pinCanvas.getWidth()
+    pinCanvas.setHeight(height * factor);
+    pinCanvas.setWidth(width * factor);
+    pinCanvas.renderAll();
+    pinCanvas.calcOffset();
   }
 }
 
