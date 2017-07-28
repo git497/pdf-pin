@@ -3,6 +3,7 @@ import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
 import 'pdfjs-dist/web/compatibility'
 import shortid from 'shortid'
 import {fabric} from 'fabric'
+import normalizeWheel from './normalizeWheel'
 
 PDFJS.disableTextLayer = true
 const {PDFViewer} = PDFJS
@@ -63,7 +64,7 @@ function Viewer(container, options = {}) {
     })
 
     pinCanvas.on('mouse:wheel', function (e) {
-      const delta = e.e.wheelDelta / 3600
+      const delta = normalizeWheel(e.e).pixelY / 3600
       zoomIn(delta)
       viewport = page.getViewport(scale);
 

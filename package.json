@@ -2,7 +2,7 @@
   "name": "pdf-pin",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "directories": {
     "lib": "lib"
   },
