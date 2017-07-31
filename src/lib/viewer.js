@@ -71,6 +71,13 @@ function Viewer(container, options = {}) {
     pinCanvas.selection = false
     fabric.Object.prototype.transparentCorners = false
 
+    fabric.util.addListener(document.getElementsByClassName('upper-canvas')[0], 'contextmenu', e => {
+      const point = pinCanvas.getPointer(e)
+      const o = pinCanvas.findTarget(e)
+      self.emit('contextmenu', e, point, o)
+      e.preventDefault()
+    })
+
     pinCanvas.on('mouse:dblclick', e => {
       // const point = {x: e.e.offsetX, y: e.e.offsetY}
       const point = pinCanvas.getPointer(e.e)
@@ -80,11 +87,6 @@ function Viewer(container, options = {}) {
     pinCanvas.on('mouse:down', e => {
       const point = pinCanvas.getPointer(e.e)
       self.emit('mouse:down', e.e, point)
-    })
-
-    pinCanvas.on('mouse:up', e => {
-      const point = pinCanvas.getPointer(e.e)
-      self.emit('mouse:up', e.e, point)
     })
 
     pinCanvas.on('mouse:wheel', e => {

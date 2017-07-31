@@ -15,6 +15,13 @@ window.onload = () => {
     console.log(`mouse down ${printObj(e)}, ${printObj(pt)}`)
   })
 
+  viewer.on('contextmenu', (e, pt, pin) => {
+    console.log(`contextmenu ${printObj(e)}, ${printObj(pt)}`)
+    if (pin) {
+      console.log(`${printObj(pin)}`)
+    }
+  })
+
   viewer.on('mouse:wheel', (e, delta) => {
     console.log(`mouse wheel ${printObj(delta)}`)
     viewer.zoomIn(delta)
