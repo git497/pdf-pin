@@ -158,4 +158,4 @@ function Viewer(container, options = {}) {
 Viewer.prototype = Object.create(EventEmitter.prototype)
 Viewer.prototype.constructor = Viewer
 
-module.exports = Viewer
+export default Viewer
