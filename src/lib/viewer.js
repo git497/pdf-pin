@@ -16,6 +16,7 @@ function Viewer(container, options = {}) {
 
   self.load = load
   self.addPin = addPin
+  self.removePin = removePin
   self.zoomIn = zoomIn
   self.zoomOut = zoomOut
 
@@ -99,7 +100,11 @@ function Viewer(container, options = {}) {
     })
   }
 
-  function addPin(point, key) {
+  function addPin(point, key, pinImgURL) {
+    if (pinImgURL) {
+      self.pinImgURL = pinImgURL
+    }
+
     return new Promise((resolve, reject) => {
       if (self.pinImgURL) {
         fabric.Image.fromURL(self.pinImgURL, img => {
@@ -122,6 +127,13 @@ function Viewer(container, options = {}) {
       img.pdfPoint = getPdfPoint(point)
       img.on('moving', e => movePin(e, img))
       pinCanvas.add(img)
+    }
+  }
+
+  function removePin(index) {
+    const o = pinCanvas.item(index)
+    if (o) {
+      pinCanvas.remove(o)
     }
   }
 
