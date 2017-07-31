@@ -1,7 +1,7 @@
-import {getDocument} from 'pdfjs-dist/webpack'
-import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
-import 'pdfjs-dist/web/compatibility'
 import shortid from 'shortid'
+import 'pdfjs-dist/web/compatibility'
+import {PDFJS} from 'pdfjs-dist/web/pdf_viewer'
+import {getDocument} from 'pdfjs-dist/webpack'
 import {fabric} from 'fabric'
 import EventEmitter from 'eventemitter3'
 import normalizeWheel from './normalizeWheel'
@@ -95,32 +95,32 @@ function Viewer(container, options = {}) {
   function addPin(point, key) {
     return new Promise((resolve, reject) => {
       if (self.pinImgURL) {
-        fabric.Image.fromURL(self.pinImgURL, imgInstance => {
-          addImgInstance(imgInstance)
-          resolve(imgInstance)
+        fabric.Image.fromURL(self.pinImgURL, img => {
+          addImage(img)
+          resolve(img)
         })
       }
     })
 
-    function addImgInstance(imgInstance) {
-      imgInstance.top = point.y - imgInstance.height
-      imgInstance.left = point.x - imgInstance.width / 2
-      imgInstance.lockUniScaling = true
-      imgInstance.lockRotation = true
-      imgInstance.topRate = point.y / viewport.height
-      imgInstance.leftRate = point.x / viewport.width
-      imgInstance.opacity = 0.85
-      imgInstance.cornerColor = 'green'
-      imgInstance.pdfPoint = getPdfPoint(point)
-      imgInstance.key = key
-      imgInstance.on('moving', e => {
-        imgInstance.topRate = (imgInstance.top + imgInstance.height) / viewport.height
-        imgInstance.leftRate = (imgInstance.left + imgInstance.width / 2) / viewport.width
+    function addImage(img) {
+      img.key = key
+      img.top = point.y - img.height
+      img.left = point.x - img.width / 2
+      img.lockUniScaling = true
+      img.lockRotation = true
+      img.topRate = point.y / viewport.height
+      img.leftRate = point.x / viewport.width
+      img.opacity = 0.85
+      img.cornerColor = 'green'
+      img.pdfPoint = getPdfPoint(point)
+      img.on('moving', e => {
+        img.topRate = (img.top + img.height) / viewport.height
+        img.leftRate = (img.left + img.width / 2) / viewport.width
         const point = pinCanvas.getPointer(e.e)
-        imgInstance.pdfPoint = getPdfPoint(point)
-        imgInstance.setCoords()
+        img.pdfPoint = getPdfPoint(point)
+        img.setCoords()
       })
-      pinCanvas.add(imgInstance)
+      pinCanvas.add(img)
     }
   }
 
@@ -132,11 +132,11 @@ function Viewer(container, options = {}) {
     const newScale = currentScale + delta
     const factor = newScale / currentScale
 
-    // 更新pdfview: scale、viewport
+    // update pdfView: scale, viewport
     pdfViewer.currentScale = newScale
     viewport = page.getViewport(newScale)
 
-    // 更新pinCanvas
+    // update pinCanvas
     const height = pinCanvas.getHeight()
     const width = pinCanvas.getWidth()
     pinCanvas.setHeight(height * factor)
