@@ -82,6 +82,11 @@ function Viewer(container, options = {}) {
       self.emit('mouse:down', e.e, point)
     })
 
+    pinCanvas.on('mouse:up', e => {
+      const point = pinCanvas.getPointer(e.e)
+      self.emit('mouse:up', e.e, point)
+    })
+
     pinCanvas.on('mouse:wheel', e => {
       const delta = normalizeWheel(e.e).pixelY / 3600
       self.emit('mouse:wheel', e.e, delta)
@@ -113,13 +118,7 @@ function Viewer(container, options = {}) {
       img.opacity = 0.85
       img.cornerColor = 'green'
       img.pdfPoint = getPdfPoint(point)
-      img.on('moving', e => {
-        img.topRate = (img.top + img.height) / viewport.height
-        img.leftRate = (img.left + img.width / 2) / viewport.width
-        const point = pinCanvas.getPointer(e.e)
-        img.pdfPoint = getPdfPoint(point)
-        img.setCoords()
-      })
+      img.on('moving', e => movePin(e, img))
       pinCanvas.add(img)
     }
   }
@@ -152,6 +151,14 @@ function Viewer(container, options = {}) {
 
   function getPdfPoint(canvasPt) {
     return viewport.convertToPdfPoint(canvasPt.x, canvasPt.y)
+  }
+
+  function movePin(e, img) {
+    img.topRate = (img.top + img.height) / viewport.height
+    img.leftRate = (img.left + img.width / 2) / viewport.width
+    const point = pinCanvas.getPointer(e.e)
+    img.pdfPoint = getPdfPoint(point)
+    img.setCoords()
   }
 }
 
