@@ -100,7 +100,7 @@ function Viewer(container, options = {}) {
     })
   }
 
-  function addPin(point, key, pinImgURL) {
+  function addPin(point, pinImgURL, textOptions) {
     if (pinImgURL) {
       self.pinImgURL = pinImgURL
     }
@@ -115,11 +115,13 @@ function Viewer(container, options = {}) {
     })
 
     function addImage(img) {
-      img.key = key
       img.top = point.y - img.height
       img.left = point.x - img.width / 2
       img.lockUniScaling = true
       img.lockRotation = true
+      img.lockScalingY = true
+      img.lockScalingX = true
+      img.lockScalingFlip = true
       img.topRate = point.y / viewport.height
       img.leftRate = point.x / viewport.width
       img.opacity = 0.85
@@ -127,6 +129,24 @@ function Viewer(container, options = {}) {
       img.pdfPoint = getPdfPoint(point)
       img.on('moving', e => movePin(e, img))
       pinCanvas.add(img)
+
+      if (textOptions && textOptions.text) {
+        let {fontSize, color: fill, fontFamily, fontWeight} = textOptions
+        fontSize = fontSize || 20
+        fill = fill || 'red'
+        fontFamily = fontFamily || 'Comic Sans'
+        fontWeight = fontWeight || 'normal'
+        const text = new fabric.Text(textOptions.text, {
+          fontSize,
+          fill,
+          fontFamily,
+          fontWeight
+        })
+        text.selectable = false
+        img.text = text
+        pinCanvas.add(text)
+        movePinText(img)
+      }
     }
   }
 
@@ -155,9 +175,15 @@ function Viewer(container, options = {}) {
     pinCanvas.setHeight(height * factor)
     pinCanvas.setWidth(width * factor)
     pinCanvas.getObjects().forEach(obj => {
+      if (obj.get('type') === 'text') {
+        return
+      }
       obj.set('top', viewport.height * obj.topRate - obj.height)
       obj.set('left', viewport.width * obj.leftRate - obj.width / 2)
       obj.setCoords()
+      if (obj.get('type') === 'image') {
+        movePinText(obj)
+      }
     })
     pinCanvas.renderAll()
     pinCanvas.calcOffset()
@@ -173,6 +199,14 @@ function Viewer(container, options = {}) {
     const point = pinCanvas.getPointer(e.e)
     img.pdfPoint = getPdfPoint(point)
     img.setCoords()
+    movePinText(img)
+  }
+
+  function movePinText(img) {
+    const text = img.text
+    if (!text) return
+    text.set('left', img.left + (img.width - text.width) / 2)
+    text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
   }
 }
 
