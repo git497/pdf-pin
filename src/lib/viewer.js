@@ -154,6 +154,9 @@ function Viewer(container, options = {}) {
     const o = pinCanvas.item(index)
     if (o) {
       pinCanvas.remove(o)
+      if (o.text) {
+        pinCanvas.remove(o.text)
+      }
     }
   }
 
