@@ -20,8 +20,12 @@ window.onload = () => {
       })
   })
 
-  viewer.on('mouse:down', (e, pt) => {
-    console.log(`mouse down ${printObj(e)}, ${printObj(pt)}`)
+  viewer.on('mouse:down', (e, pt, pin) => {
+    console.log(`mouse down ${printObj(e)}, ${printObj(pt)}, ${printObj(pin)}`)
+  })
+
+  viewer.on('mouse:up', (e, pt, pin) => {
+    console.log(`mouse up ${printObj(e)}, ${printObj(pt)}, ${printObj(pin)}`)
   })
 
   viewer.on('contextmenu', (e, pt, pin) => {
@@ -36,8 +40,8 @@ window.onload = () => {
     viewer.zoomIn(delta)
   })
 
-  viewer.on('object:selected', (key, obj) => {
-    console.log(`object selected ${printObj(obj)}`)
+  viewer.on('object:selected', pin => {
+    console.log(`object selected ${printObj(pin)}`)
   })
 
   function printObj(o) {

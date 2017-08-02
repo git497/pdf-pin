@@ -85,9 +85,16 @@ function Viewer(container, options = {}) {
       self.emit('mouse:dblclick', e.e, point)
     })
 
+    pinCanvas.on('mouse:up', e => {
+      const point = pinCanvas.getPointer(e.e)
+      const o = pinCanvas.findTarget(e.e)
+      self.emit('mouse:up', e.e, point, o)
+    })
+
     pinCanvas.on('mouse:down', e => {
       const point = pinCanvas.getPointer(e.e)
-      self.emit('mouse:down', e.e, point)
+      const o = pinCanvas.findTarget(e.e)
+      self.emit('mouse:down', e.e, point, o)
     })
 
     pinCanvas.on('mouse:wheel', e => {
