@@ -4,19 +4,23 @@ import Viewer from './lib/viewer'
 window.onload = () => {
   const container = document.getElementById('container')
   const viewer = new Viewer(container)
-  viewer.load('data/helloworld.pdf')
+  viewer.load('data/HYG.pdf')
 
   viewer.on('mouse:dblclick', (e, pt) => {
     console.log(`mouse double click ${printObj(e)}, ${printObj(pt)}`)
-    viewer.addPin(pt, null, {
+    const imgURL = null
+    const textOptions = {
       text: '6',
       fontSize: 20, // optional
       color: 'black', // optional
       fontFamily: 'Comic Sans', // optional
       fontWeight: 'normal' // optional
-    })
+    }
+    viewer.addPin(pt, imgURL, textOptions)
       .then(pin => {
-        printObj(pin)
+        console.log(pin.index)
+        viewer.removePin(pin.index)
+        viewer.addPinWithPdfPoint(pin.pdfPoint, imgURL, textOptions) // test addPinWithPdfPoint
       })
   })
 

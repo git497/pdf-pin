@@ -16,6 +16,7 @@ function Viewer(container, options = {}) {
 
   self.load = load
   self.addPin = addPin
+  self.addPinWithPdfPoint = addPinWithPdfPoint
   self.removePin = removePin
   self.zoomIn = zoomIn
   self.zoomOut = zoomOut
@@ -103,8 +104,15 @@ function Viewer(container, options = {}) {
     })
 
     pinCanvas.on('object:selected', e => {
-      self.emit('object:selected', e.target)
+      const img = e.target
+      self.emit('object:selected', img)
     })
+  }
+
+  function addPinWithPdfPoint(pt, pinImgURL, textOptions) {
+    const [x, y] = viewport.convertToViewportPoint(pt.x, pt.y)
+    const viewportPt = {x, y}
+    return addPin(viewportPt, pinImgURL, textOptions)
   }
 
   function addPin(point, pinImgURL, textOptions) {
@@ -133,7 +141,8 @@ function Viewer(container, options = {}) {
       img.leftRate = point.x / viewport.width
       img.opacity = 0.85
       img.cornerColor = 'green'
-      img.pdfPoint = getPdfPoint(point)
+      const [x, y] = getPdfPoint(point)
+      img.pdfPoint = {x, y}
       img.index = pinCanvas.size()
       img.on('moving', e => movePin(e, img))
       pinCanvas.add(img)
