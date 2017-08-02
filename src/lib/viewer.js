@@ -127,6 +127,7 @@ function Viewer(container, options = {}) {
       img.opacity = 0.85
       img.cornerColor = 'green'
       img.pdfPoint = getPdfPoint(point)
+      img.index = pinCanvas.size()
       img.on('moving', e => movePin(e, img))
       pinCanvas.add(img)
 

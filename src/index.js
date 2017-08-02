@@ -15,6 +15,9 @@ window.onload = () => {
       fontFamily: 'Comic Sans', // optional
       fontWeight: 'normal' // optional
     })
+      .then(pin => {
+        printObj(pin)
+      })
   })
 
   viewer.on('mouse:down', (e, pt) => {
