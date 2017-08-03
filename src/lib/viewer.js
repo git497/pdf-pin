@@ -109,46 +109,57 @@ function Viewer(container, options = {}) {
     })
   }
 
-  function addPinWithPdfPoint(pdfPt, pinImgURL, textOptions, extraData) {
-    const [x, y] = viewport.convertToViewportPoint(pdfPt.x, pdfPt.y)
-    const viewportPt = {x, y}
-    return addPin(viewportPt, pinImgURL, textOptions, extraData)
-  }
-
-  function addPin(point, pinImgURL, textOptions, extraData) {
+  function addPin(point, pinImgURL, textOptions = {}, extraData = {}) {
     if (pinImgURL) {
       self.pinImgURL = pinImgURL
     }
 
-    return new Promise((resolve, reject) => {
-      if (self.pinImgURL) {
+    if (!textOptions.text) {
+      return addImage()
+    }
+
+    return generatePicWithText(self.pinImgURL, textOptions)
+      .then(url => {
+        self.pinImgURL = url
+        return addImage()
+      })
+
+    function addImage() {
+      return new Promise(resolve => {
         fabric.Image.fromURL(self.pinImgURL, img => {
-          addImage(img)
+          img.top = point.y - img.height
+          img.left = point.x - img.width / 2
+          img.lockUniScaling = true
+          img.lockRotation = true
+          img.lockScalingY = true
+          img.lockScalingX = true
+          img.lockScalingFlip = true
+          img.topRate = point.y / viewport.height
+          img.leftRate = point.x / viewport.width
+          img.opacity = 0.85
+          img.cornerColor = 'green'
+          const [x, y] = getPdfPoint(point)
+          img.pdfPoint = {x, y}
+          img.index = pinCanvas.size()
+          img.on('moving', e => movePin(e, img))
+          Object.assign(img, extraData)
+          pinCanvas.add(img)
           resolve(img)
         })
-      }
-    })
+      })
+    }
+  }
 
-    function addImage(img) {
-      img.top = point.y - img.height
-      img.left = point.x - img.width / 2
-      img.lockUniScaling = true
-      img.lockRotation = true
-      img.lockScalingY = true
-      img.lockScalingX = true
-      img.lockScalingFlip = true
-      img.topRate = point.y / viewport.height
-      img.leftRate = point.x / viewport.width
-      img.opacity = 0.85
-      img.cornerColor = 'green'
-      const [x, y] = getPdfPoint(point)
-      img.pdfPoint = {x, y}
-      img.index = pinCanvas.size()
-      img.on('moving', e => movePin(e, img))
-      Object.assign(img, extraData || {})
-      pinCanvas.add(img)
-
-      if (textOptions && textOptions.text) {
+  function generatePicWithText(imgURL, textOptions) {
+    return new Promise(resolve => {
+      fabric.Image.fromURL(imgURL, img => {
+        const canvasPic = document.createElement("canvas")
+        canvasPic.id = shortid.generate()
+        canvasPic.width = img.width
+        canvasPic.height = img.height
+        canvasPic.style.display = 'none'
+        container.appendChild(canvasPic)
+        const c = new fabric.Canvas(canvasPic.id)
         let {fontSize, color: fill, fontFamily, fontWeight} = textOptions
         fontSize = fontSize || 20
         fill = fill || 'red'
@@ -160,12 +171,19 @@ function Viewer(container, options = {}) {
           fontFamily,
           fontWeight
         })
-        text.selectable = false
-        img.text = text
-        pinCanvas.add(text)
-        movePinText(img)
-      }
-    }
+        text.set('left', img.left + (img.width - text.width) / 2)
+        text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
+        c.add(img)
+        c.add(text)
+        resolve(c.toDataURL())
+      })
+    })
+  }
+
+  function addPinWithPdfPoint(pdfPt, pinImgURL, textOptions, extraData) {
+    const [x, y] = viewport.convertToViewportPoint(pdfPt.x, pdfPt.y)
+    const viewportPt = {x, y}
+    return addPin(viewportPt, pinImgURL, textOptions, extraData)
   }
 
   function removePin(index) {
@@ -196,15 +214,9 @@ function Viewer(container, options = {}) {
     pinCanvas.setHeight(height * factor)
     pinCanvas.setWidth(width * factor)
     pinCanvas.getObjects().forEach(obj => {
-      if (obj.get('type') === 'text') {
-        return
-      }
       obj.set('top', viewport.height * obj.topRate - obj.height)
       obj.set('left', viewport.width * obj.leftRate - obj.width / 2)
       obj.setCoords()
-      if (obj.get('type') === 'image') {
-        movePinText(obj)
-      }
     })
     pinCanvas.renderAll()
     pinCanvas.calcOffset()
@@ -220,14 +232,6 @@ function Viewer(container, options = {}) {
     const point = pinCanvas.getPointer(e.e)
     img.pdfPoint = getPdfPoint(point)
     img.setCoords()
-    movePinText(img)
-  }
-
-  function movePinText(img) {
-    const text = img.text
-    if (!text) return
-    text.set('left', img.left + (img.width - text.width) / 2)
-    text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
   }
 }
 
