@@ -241,8 +241,8 @@ function Viewer(container, options = {}) {
     img.topRate = (img.top + img.height) / viewport.height
     img.leftRate = (img.left + img.width / 2) / viewport.width
     const [x, y] = getPdfPoint({
-      x: img.top + img.height,
-      y: img.left + img.width / 2
+      x: img.left + img.width / 2,
+      y: img.top + img.height,
     })
     img.pdfPoint = {x, y}
     img.setCoords()
