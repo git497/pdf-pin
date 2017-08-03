@@ -49,6 +49,10 @@ window.onload = () => {
     console.log(`object selected ${printObj(pin)}`)
   })
 
+  viewer.on('object:moving', pin => {
+    console.log(`object moving ${printObj(pin)}`)
+  })
+
   function printObj(o) {
     return JSON.stringify(o, null, 2)
   }

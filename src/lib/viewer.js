@@ -244,6 +244,7 @@ function Viewer(container, options = {}) {
     const [x, y] = getPdfPoint(point)
     img.pdfPoint = {x, y}
     img.setCoords()
+    self.emit('object:moving', img)
   }
 }
 
