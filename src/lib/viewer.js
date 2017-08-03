@@ -176,6 +176,8 @@ function Viewer(container, options = {}) {
         c.add(img)
         c.add(text)
         resolve(c.toDataURL())
+        c.dispose()
+        container.removeChild(canvasPic)
       })
     })
   }

@@ -20,8 +20,8 @@ window.onload = () => {
     viewer.addPin(pt, imgURL, textOptions, extraData)
       .then(pin => {
         console.log(pin.index)
-        viewer.removePin(pin.index)
-        viewer.addPinWithPdfPoint(pin.pdfPoint, imgURL, textOptions, extraData) // test addPinWithPdfPoint
+        // viewer.removePin(pin.index)
+        // viewer.addPinWithPdfPoint(pin.pdfPoint, imgURL, textOptions, extraData) // test addPinWithPdfPoint
       })
   })
 
