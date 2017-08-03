@@ -1,2 +1,2 @@
 
-module.exports = require('./src/lib/viewer')
+module.exports = require('./dist/view')

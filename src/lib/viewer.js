@@ -72,7 +72,6 @@ function Viewer(container, options = {}) {
 
     pinCanvas = new fabric.Canvas(canvasElem.id)
     pinCanvas.selection = false
-    fabric.Object.prototype.transparentCorners = false
 
     fabric.util.addListener(document.getElementsByClassName('upper-canvas')[0], 'contextmenu', e => {
       const point = pinCanvas.getPointer(e)
@@ -155,6 +154,7 @@ function Viewer(container, options = {}) {
         container.appendChild(canvasPic)
 
         const c = new fabric.Canvas(canvasPic.id)
+
         img.left = 0
         img.top = 0
         c.add(img)
@@ -172,11 +172,8 @@ function Viewer(container, options = {}) {
         })
         text.set('left', img.left + (img.width - text.width) / 2)
         text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
-
         c.add(text)
-        const result = c.toDataURL({multiplier: 1})
-        console.log(result)
-        resolve(result)
+        resolve(c.toDataURL())
         c.dispose()
         container.removeChild(canvasPic)
       })
