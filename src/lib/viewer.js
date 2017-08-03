@@ -109,13 +109,13 @@ function Viewer(container, options = {}) {
     })
   }
 
-  function addPinWithPdfPoint(pt, pinImgURL, textOptions) {
-    const [x, y] = viewport.convertToViewportPoint(pt.x, pt.y)
+  function addPinWithPdfPoint(pdfPt, pinImgURL, textOptions, extraData) {
+    const [x, y] = viewport.convertToViewportPoint(pdfPt.x, pdfPt.y)
     const viewportPt = {x, y}
-    return addPin(viewportPt, pinImgURL, textOptions)
+    return addPin(viewportPt, pinImgURL, textOptions, extraData)
   }
 
-  function addPin(point, pinImgURL, textOptions) {
+  function addPin(point, pinImgURL, textOptions, extraData) {
     if (pinImgURL) {
       self.pinImgURL = pinImgURL
     }
@@ -145,6 +145,7 @@ function Viewer(container, options = {}) {
       img.pdfPoint = {x, y}
       img.index = pinCanvas.size()
       img.on('moving', e => movePin(e, img))
+      Object.assign(img, extraData || {})
       pinCanvas.add(img)
 
       if (textOptions && textOptions.text) {

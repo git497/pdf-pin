@@ -4,7 +4,7 @@ import Viewer from './lib/viewer'
 window.onload = () => {
   const container = document.getElementById('container')
   const viewer = new Viewer(container)
-  viewer.load('data/HYG.pdf')
+  viewer.load('data/pdfpin.pdf')
 
   viewer.on('mouse:dblclick', (e, pt) => {
     console.log(`mouse double click ${printObj(e)}, ${printObj(pt)}`)
@@ -16,7 +16,7 @@ window.onload = () => {
       fontFamily: 'Comic Sans', // optional
       fontWeight: 'normal' // optional
     }
-    viewer.addPin(pt, imgURL, textOptions)
+    viewer.addPin(pt, imgURL, textOptions, {_id: 'i am id'})
       .then(pin => {
         console.log(pin.index)
         viewer.removePin(pin.index)
