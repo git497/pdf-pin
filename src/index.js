@@ -16,11 +16,12 @@ window.onload = () => {
       fontFamily: 'Comic Sans', // optional
       fontWeight: 'normal' // optional
     }
-    viewer.addPin(pt, imgURL, textOptions, {_id: 'i am id'})
+    const extraData = {_id: 'i am id'}
+    viewer.addPin(pt, imgURL, textOptions, extraData)
       .then(pin => {
         console.log(pin.index)
         viewer.removePin(pin.index)
-        viewer.addPinWithPdfPoint(pin.pdfPoint, imgURL, textOptions) // test addPinWithPdfPoint
+        viewer.addPinWithPdfPoint(pin.pdfPoint, imgURL, textOptions, extraData) // test addPinWithPdfPoint
       })
   })
 
