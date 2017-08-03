@@ -116,29 +116,22 @@ function Viewer(container, options = {}) {
     }
 
     if (!textOptions.text) {
-      return addImage()
+      return addImage(self.pinImgURL)
     }
 
     return generatePicWithText(self.pinImgURL, textOptions)
-      .then(url => {
-        self.pinImgURL = url
-        return addImage()
-      })
+      .then(addImage)
 
-    function addImage() {
+    function addImage(url) {
       return new Promise(resolve => {
-        fabric.Image.fromURL(self.pinImgURL, img => {
+        fabric.Image.fromURL(url, img => {
           img.top = point.y - img.height
           img.left = point.x - img.width / 2
-          img.lockUniScaling = true
-          img.lockRotation = true
-          img.lockScalingY = true
-          img.lockScalingX = true
-          img.lockScalingFlip = true
           img.topRate = point.y / viewport.height
           img.leftRate = point.x / viewport.width
           img.opacity = 0.85
-          img.cornerColor = 'green'
+          img.hasControls = false
+          img.hasRotatingPoint = false
           const [x, y] = getPdfPoint(point)
           img.pdfPoint = {x, y}
           img.index = pinCanvas.size()
@@ -160,7 +153,12 @@ function Viewer(container, options = {}) {
         canvasPic.height = img.height
         canvasPic.style.display = 'none'
         container.appendChild(canvasPic)
+
         const c = new fabric.Canvas(canvasPic.id)
+        img.left = 0
+        img.top = 0
+        c.add(img)
+
         let {fontSize, color: fill, fontFamily, fontWeight} = textOptions
         fontSize = fontSize || 20
         fill = fill || 'red'
@@ -174,9 +172,11 @@ function Viewer(container, options = {}) {
         })
         text.set('left', img.left + (img.width - text.width) / 2)
         text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
-        c.add(img)
+
         c.add(text)
-        resolve(c.toDataURL())
+        const result = c.toDataURL({multiplier: 1})
+        console.log(result)
+        resolve(result)
         c.dispose()
         container.removeChild(canvasPic)
       })
