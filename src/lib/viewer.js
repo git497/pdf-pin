@@ -15,8 +15,9 @@ function Viewer(container, options = {}) {
   const self = this
 
   self.load = load
-  self.addPin = addPin
-  self.addPinWithPdfPoint = addPinWithPdfPoint
+  self.addPin = addPin // 使用当前屏幕坐标插入图钉
+  self.addPinWithRate = addPinWithRate // 使用相对于viewport的横向、纵向比插入图钉
+  self.addPinWithPdfPoint = addPinWithPdfPoint // 使用pdf中的坐标值插入图钉
   self.removePin = removePin
   self.zoomIn = zoomIn
   self.zoomOut = zoomOut
@@ -185,6 +186,14 @@ function Viewer(container, options = {}) {
   function addPinWithPdfPoint(pdfPt, pinImgURL, textOptions, extraData) {
     const [x, y] = viewport.convertToViewportPoint(pdfPt.x, pdfPt.y)
     const viewportPt = {x, y}
+    return addPin(viewportPt, pinImgURL, textOptions, extraData)
+  }
+
+  function addPinWithRate(leftRate, topRate, pinImgURL, textOptions, extraData) {
+    const viewportPt = {
+      x: leftRate * viewport.width,
+      y: topRate * viewport.height
+    }
     return addPin(viewportPt, pinImgURL, textOptions, extraData)
   }
 
