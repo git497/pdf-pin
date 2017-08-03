@@ -240,8 +240,10 @@ function Viewer(container, options = {}) {
   function movePin(e, img) {
     img.topRate = (img.top + img.height) / viewport.height
     img.leftRate = (img.left + img.width / 2) / viewport.width
-    const point = pinCanvas.getPointer(e.e)
-    const [x, y] = getPdfPoint([img.top + img.height, img.left + img.width / 2])
+    const [x, y] = getPdfPoint({
+      x: img.top + img.height,
+      y: img.left + img.width / 2
+    })
     img.pdfPoint = {x, y}
     img.setCoords()
     self.emit('object:moving', img)
