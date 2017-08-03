@@ -6,6 +6,7 @@ import {fabric} from 'fabric'
 import EventEmitter from 'eventemitter3'
 import normalizeWheel from './normalizeWheel'
 
+fabric.devicePixelRatio = 1 // Retina issue
 PDFJS.disableTextLayer = true
 const {PDFViewer} = PDFJS
 const CSS_UNITS = 96.0 / 72.0
@@ -154,25 +155,20 @@ function Viewer(container, options = {}) {
         container.appendChild(canvasPic)
 
         const c = new fabric.Canvas(canvasPic.id)
-
         img.left = 0
         img.top = 0
         c.add(img)
 
-        let {fontSize, color: fill, fontFamily, fontWeight} = textOptions
-        fontSize = fontSize || 20
-        fill = fill || 'red'
-        fontFamily = fontFamily || 'Comic Sans'
-        fontWeight = fontWeight || 'normal'
         const text = new fabric.Text(textOptions.text, {
-          fontSize,
-          fill,
-          fontFamily,
-          fontWeight
+          fontSize: textOptions.fontSize || 20,
+          fill: textOptions.color || 'red',
+          fontFamily: textOptions.fontFamily || 'Comic Sans',
+          fontWeight: textOptions.fontWeight || 'normal'
         })
-        text.set('left', img.left + (img.width - text.width) / 2)
-        text.set('top', img.top + (img.height - text.height) / 2.5) // 中间偏上一点(根据图钉图片需要微调)
+        text.left = img.left + (img.width - text.width) / 2
+        text.top = img.top + (img.height - text.height) / 2.5 // 中间偏上一点(根据图钉图片需要微调)
         c.add(text)
+
         resolve(c.toDataURL())
         c.dispose()
         container.removeChild(canvasPic)
