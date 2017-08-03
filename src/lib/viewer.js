@@ -230,7 +230,8 @@ function Viewer(container, options = {}) {
     img.topRate = (img.top + img.height) / viewport.height
     img.leftRate = (img.left + img.width / 2) / viewport.width
     const point = pinCanvas.getPointer(e.e)
-    img.pdfPoint = getPdfPoint(point)
+    const [x, y] = getPdfPoint(point)
+    img.pdfPoint = {x, y}
     img.setCoords()
   }
 }
