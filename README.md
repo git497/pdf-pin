@@ -6,6 +6,11 @@
 1. npm start
 1. access <http://localhost:3334>
 
+## Build
+
+1. npm i
+1. npm run build
+
 ## Preview
 ![Alt Text](https://github.com/git497/pdf-pin/blob/master/preview.png)
 

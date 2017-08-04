@@ -1,6 +1,5 @@
 const path = require('path')
 const webpack = require('webpack')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanPlugin = require('clean-webpack-plugin')
 const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin
 
@@ -8,9 +7,6 @@ const env = process.env.NODE_ENV
 const libraryName = 'bundle'
 let outputFile = `${libraryName}.js`
 let plugins = [
-  // new CopyWebpackPlugin([
-  //   {from: 'data', to: 'data'}
-  // ]),
   new CleanPlugin(['dist'])
 ]
 
@@ -43,10 +39,7 @@ module.exports = {
     libraryTarget: 'umd',
     umdNamedDefine: true
   },
-  devServer: {
-    port: 3334
-  },
-  devtool: 'source-map',
+  devtool: env === 'production' ? '' : 'source-map',
   module: {
     rules: [
       {
@@ -59,20 +52,6 @@ module.exports = {
             cacheDirectory: true
           }
         }
-      },
-      {
-        test: /\.html$/,
-        use: [
-          {
-            loader: 'file-loader?name=index.[ext]'
-          },
-          {
-            loader: 'extract-loader'
-          },
-          {
-            loader: 'html-loader'
-          }
-        ]
       }
     ]
   },

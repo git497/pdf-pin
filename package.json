@@ -7,8 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "node_modules/.bin/webpack-dev-server --devtool eval --progress --colors --hot --history-api-fallback --inline --content-base dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/.bin/webpack-dev-server --config webpack.test.js --devtool eval --progress --colors --hot --history-api-fallback --inline --content-base test/dist",
+    "test": "NODE_ENV=production node_modules/.bin/webpack --config webpack.test.js",
     "build": "NODE_ENV=production node_modules/.bin/webpack"
   },
   "repository": {
