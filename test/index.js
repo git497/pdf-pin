@@ -1,10 +1,10 @@
 import './index.html'
-import Viewer from './lib/viewer'
+import Viewer from '../src/viewer'
 
 window.onload = () => {
   const container = document.getElementById('container')
   const viewer = new Viewer(container)
-  viewer.load('data/pdfpin.pdf')
+  viewer.load('drawing.pdf')
 
   viewer.on('mouse:dblclick', (e, pt) => {
     console.log(`mouse double click ${printObj(e)}, ${printObj(pt)}`)

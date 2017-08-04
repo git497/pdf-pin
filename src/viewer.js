@@ -28,7 +28,6 @@ function Viewer(container, options = {}) {
 
   const viewerElem = document.createElement("div")
   viewerElem.id = shortid.generate()
-  // viewerElem.style.border = "medium dotted yellow"
   viewerElem.style.position = 'absolute'
   container.appendChild(viewerElem)
 
