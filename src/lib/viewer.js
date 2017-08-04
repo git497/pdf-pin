@@ -30,9 +30,6 @@ function Viewer(container, options = {}) {
   viewerElem.id = shortid.generate()
   // viewerElem.style.border = "medium dotted yellow"
   viewerElem.style.position = 'absolute'
-  // viewerElem.style.width = container.style.width
-  // viewerElem.style.height = container.clientHeight || 500
-  // viewerElem.style.overflow = 'auto'
   container.appendChild(viewerElem)
 
   let viewport = null
@@ -85,23 +82,27 @@ function Viewer(container, options = {}) {
       // const point = {x: e.e.offsetX, y: e.e.offsetY}
       const point = pinCanvas.getPointer(e.e)
       self.emit('mouse:dblclick', e.e, point)
+      e.e.preventDefault()
     })
 
     pinCanvas.on('mouse:up', e => {
       const point = pinCanvas.getPointer(e.e)
       const o = pinCanvas.findTarget(e.e)
       self.emit('mouse:up', e.e, point, o)
+      e.e.preventDefault()
     })
 
     pinCanvas.on('mouse:down', e => {
       const point = pinCanvas.getPointer(e.e)
       const o = pinCanvas.findTarget(e.e)
       self.emit('mouse:down', e.e, point, o)
+      e.e.preventDefault()
     })
 
     pinCanvas.on('mouse:wheel', e => {
       const delta = normalizeWheel(e.e).pixelY / 3600
       self.emit('mouse:wheel', e.e, delta)
+      e.e.preventDefault()
     })
 
     pinCanvas.on('object:selected', e => {
