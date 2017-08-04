@@ -6,10 +6,13 @@ import {fabric} from 'fabric'
 import EventEmitter from 'eventemitter3'
 import normalizeWheel from './normalizeWheel'
 
-fabric.devicePixelRatio = 1 // Retina issue
-PDFJS.disableTextLayer = true
+// config pdf.js
 const {PDFViewer} = PDFJS
 const CSS_UNITS = 96.0 / 72.0
+PDFJS.disableTextLayer = true
+
+// config fabric.js
+fabric.devicePixelRatio = 1 // Retina issue
 
 function Viewer(container, options = {}) {
   EventEmitter.call(this)

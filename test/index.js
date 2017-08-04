@@ -8,9 +8,9 @@ window.onload = () => {
 
   viewer.on('mouse:dblclick', (e, pt) => {
     console.log(`mouse double click ${printObj(e)}, ${printObj(pt)}`)
-    const imgURL = null
+    const imgURL = 'pin.png' // or null
     const textOptions = {
-      text: '6',
+      text: '0',
       fontSize: 20, // optional
       color: 'black', // optional
       fontFamily: 'Comic Sans', // optional
